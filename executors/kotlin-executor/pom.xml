@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>pl.kurczews</groupId>
+        <artifactId>executors</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>kotlin-executor</artifactId>
+
+    <properties>
+        <docker.tag>kurczews/kubeless-kotlin</docker.tag>
+    </properties>
+
+    <dependencies>
+        <!-- kotlin script utils -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-compiler-embeddable</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-script-util</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--
+            Kotlin script doesn't see external libraries
+            hence ignore maven-jar-plugin in favor of fat jar
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration/>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>pl.kurczews.server.MainKt</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <configuration>
+                    <repository>${docker.tag}</repository>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

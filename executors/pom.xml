@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>kubeless-jvm</artifactId>
+        <groupId>pl.kurczews</groupId>
+        <version>1.0</version>
+    </parent>
+
+    <modules>
+        <module>java-executor</module>
+        <module>kotlin-executor</module>
+    </modules>
+
+    <artifactId>executors</artifactId>
+    <packaging>pom</packaging>
+
+    <!-- common dependencies used by all executors -->
+    <dependencies>
+        <dependency>
+            <groupId>pl.kurczews</groupId>
+            <artifactId>executor-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>pl.kurczews</groupId>
+            <artifactId>server</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
+
+    <!-- common plugins used by all executors -->
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>pl.kurczews.server.MainKt</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <!-- predefined plugins for all executors -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>dockerfile-maven-plugin</artifactId>
+                    <version>1.4.0</version>
+                    <executions>
+                        <execution>
+                            <id>default</id>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <skipTag>true</skipTag>
+                        <tag>${project.version}</tag>
+                        <buildArgs>
+                            <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+                        </buildArgs>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>
